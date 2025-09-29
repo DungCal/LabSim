@@ -1,0 +1,21 @@
+[package]
+# Semantic Versioning is used: https://semver.org/
+version = "0.1.0"
+
+# Description
+title =  "LabSim Assets"
+description = "Extension containing configuration instances of different assets and sensors for LabSim"
+readme  = "docs/README.md"
+repository = "https://github.com/yourusername/LabSim"
+category = "robotics"
+keywords = ["kit", "robotics", "assets", "labsim"]
+
+[dependencies]
+"labsim" = {}
+
+[core]
+reloadable = false
+
+# Main python module this extension provides.
+[[python.module]]
+name = "assets"

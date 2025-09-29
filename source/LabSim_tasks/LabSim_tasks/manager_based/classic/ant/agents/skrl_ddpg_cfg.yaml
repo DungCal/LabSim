@@ -1,0 +1,90 @@
+seed: 42
+
+# Models are instantiated using skrl's model instantiator utility
+# https://skrl.readthedocs.io/en/latest/api/utils/model_instantiators.html
+models:
+  # Actor network (policy) and target
+  policy:
+    class: DeterministicMixin
+    clip_actions: false
+    network:
+      - name: net
+        input: STATES
+        layers: [256,256]
+        activations: tanh
+    output: ACTIONS
+
+  target_policy:
+    class: DeterministicMixin
+    clip_actions: false
+    network:
+      - name: net
+        input: STATES
+        layers: [256, 256]
+        activations: tanh
+    output: ACTIONS
+
+  # Critic network and target
+  critic:
+    class: DeterministicMixin
+    network:
+      - name: net
+        input: OBSERVATIONS_ACTIONS  # Critic takes both states and actions
+        layers: [256, 256]
+        activations: relu
+    output: ONE  # Output Q-values
+
+  target_critic:
+    class: DeterministicMixin
+    network:
+      - name: net
+        input: OBSERVATIONS_ACTIONS  # Same input as main critic
+        layers: [256,256]
+        activations: relu
+    output: ONE  # Same output as main critic
+
+# Replay buffer
+memory:
+  class: RandomMemory
+  memory_size: 10000
+
+# DDPG agent configuration
+agent:
+  class: DDPG
+  gradient_steps: 1
+  batch_size: 64
+  discount_factor: 0.99
+  polyak: 0.005
+  actor_learning_rate: 1.0e-3
+  critic_learning_rate: 1.0e-3
+  learning_rate_scheduler: KLAdaptiveLR
+  learning_rate_scheduler_kwargs: {}
+  state_preprocessor: RunningStandardScaler
+  state_preprocessor_kwargs: {}
+  random_timesteps: 0
+  learning_starts: 0
+  grad_norm_clip: 0
+  exploration:
+    noise: null  # We'll set this in the training script
+    noise_kwargs: null
+    initial_scale: 1.0
+    final_scale: 0.1
+    timesteps: 5000
+  rewards_shaper: null
+  mixed_precision: false
+  experiment:
+    directory: "ant_ddpg"
+    experiment_name: ""
+    write_interval: "auto"
+    checkpoint_interval: "auto"
+    store_separately: false
+    wandb: false
+    wandb_kwargs: {}
+
+# Trainer configuration
+trainer:
+  class: SequentialTrainer
+  timesteps: 50000
+  evaluation_interval: 100
+  evaluation_episodes: 10
+  max_episode_timesteps: 1000

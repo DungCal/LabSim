@@ -20,9 +20,9 @@ from isaaclab.app import AppLauncher
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with skrl.")
 parser.add_argument("--video", action="store_true", default=False, help="Record videos during training.")
-parser.add_argument("--video_length", type=int, default=200, help="Length of the recorded video (in steps).")
-parser.add_argument("--video_interval", type=int, default=2000, help="Interval between video recordings (in steps).")
-parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
+parser.add_argument("--video_length", type=int, default=1000, help="Length of the recorded video (in steps).")
+parser.add_argument("--video_interval", type=int, default=200, help="Interval between video recordings (in steps).")
+parser.add_argument("--num_envs", type=int, default=16, help="Number of environments to simulate.")
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument(
     "--agent",
@@ -50,8 +50,8 @@ parser.add_argument(
 parser.add_argument(
     "--algorithm",
     type=str,
-    default="PPO",
-    choices=["AMP", "PPO", "IPPO", "MAPPO"],
+    default=None,
+    choices=["AMP", "PPO", "IPPO", "MAPPO", "DQN", "DDPG", "SAC"],
     help="The RL algorithm used for training the skrl agent.",
 )
 
@@ -72,6 +72,9 @@ simulation_app = app_launcher.app
 
 """Rest everything follows."""
 
+# Import tasks after simulator is initialized
+import LabSim_tasks  # noqa: F401
+
 import gymnasium as gym
 import os
 import random
@@ -80,6 +83,10 @@ from datetime import datetime
 import omni
 import skrl
 from packaging import version
+from skrl.resources.noises.torch import OrnsteinUhlenbeckNoise
+from skrl.resources.schedulers.torch import KLAdaptiveLR
+from skrl.resources.preprocessors.torch import RunningStandardScaler
+from skrl.utils.huggingface import download_model_from_huggingface
 
 # check for minimum supported skrl version
 SKRL_VERSION = "1.4.3"
@@ -111,16 +118,18 @@ from isaaclab_rl.skrl import SkrlVecEnvWrapper
 import isaaclab_tasks  # noqa: F401
 from isaaclab_tasks.utils.hydra import hydra_task_config
 
-import LabSim.tasks  # noqa: F401
+import LabSim_tasks  # noqa: F401
+
+# PLACEHOLDER: Extension template (do not remove this comment)
 
 # config shortcuts
 if args_cli.agent is None:
     algorithm = args_cli.algorithm.lower()
-    agent_cfg_entry_point = "skrl_cfg_entry_point" if algorithm in ["ppo"] else f"skrl_{algorithm}_cfg_entry_point"
+    agent_cfg_entry_point = f"skrl_{algorithm}_cfg_entry_point"
 else:
     agent_cfg_entry_point = args_cli.agent
 
-
+#register gym envs to hydra
 @hydra_task_config(args_cli.task, agent_cfg_entry_point)
 def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agent_cfg: dict):
     """Train with skrl agent."""
@@ -171,8 +180,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     dump_pickle(os.path.join(log_dir, "params", "agent.pkl"), agent_cfg)
 
     # get checkpoint path (to resume training)
-    resume_path = retrieve_file_path(args_cli.checkpoint) if args_cli.checkpoint else None
-
+    #resume_path = retrieve_file_path(args_cli.checkpoint) if args_cli.checkpoint else None
+    resume_path = args_cli.checkpoint if args_cli.checkpoint else None
     # set the IO descriptors output directory if requested
     if isinstance(env_cfg, ManagerBasedRLEnvCfg):
         env_cfg.export_io_descriptors = args_cli.export_io_descriptors
@@ -206,12 +215,25 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # configure and instantiate the skrl runner
     # https://skrl.readthedocs.io/en/latest/api/utils/runner.html
+    
+        # Set up Ornstein-Uhlenbeck noise for DDPG
+    if algorithm == "ddpg":
+        # Pass the noise class itself, not an instance
+        if "agent" in agent_cfg and isinstance(agent_cfg["agent"], dict):
+            agent_cfg["agent"]["exploration"]["noise"] = OrnsteinUhlenbeckNoise
+            agent_cfg["agent"]["exploration"]["noise_kwargs"] = {
+                "theta": 0.15,
+                "sigma": 0.2,
+                "base_scale": 1.0
+            }
+
     runner = Runner(env, agent_cfg)
 
     # load checkpoint (if specified)
-    if resume_path:
-        print(f"[INFO] Loading model checkpoint from: {resume_path}")
-        runner.agent.load(resume_path)
+    if resume_path is not None and resume_path == "huggingface_model" and algorithm == "ppo":
+        path = download_model_from_huggingface("skrl/OmniIsaacGymEnvs-Cartpole-PPO", filename='agent.pt')
+        print(f"[INFO] Loading model checkpoint from: {path}")
+        runner.agent.load(path)
 
     # run training
     runner.run()

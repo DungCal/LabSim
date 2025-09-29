@@ -1,13 +1,16 @@
-# Template for Isaac Lab Projects
+# LabSim: A Robotic Simulation Environment
 
 ## Overview
 
-This project/repository serves as a template for building projects or extensions based on Isaac Lab.
-It allows you to develop in an isolated environment, outside of the core Isaac Lab repository.
+LabSim is a robotic simulation environment built on top of NVIDIA's Isaac Sim platform. It provides a flexible and extensible framework for developing and testing robotic control algorithms, particularly focused on reinforcement learning applications.
 
 **Key Features:**
 
-- `Isolation` Work outside the core Isaac Lab repository, ensuring that your development efforts remain self-contained.
+- Built on NVIDIA Isaac Sim for high-fidelity physics simulation
+- Compatible with standard RL frameworks (skrl, RL Games, RSL-RL)
+- Modular environment design
+- Pre-built robot environments (Franka Emika, UR10)
+- Support for both joint space and operational space control
 - `Flexibility` This template is set up to allow your code to be run as an extension in Omniverse.
 
 **Keywords:** extension, template, isaaclab

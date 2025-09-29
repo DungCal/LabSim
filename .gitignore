@@ -18,6 +18,41 @@
 .DS_Store
 **/*.egg-info/
 **/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg
+
+# Virtual Environment
+env_isaaclab/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs and outputs
+*.log
+logs/
+outputs/
+wandb/
 **/.pytest_cache/
 **/*.pyc
 **/*.pb
