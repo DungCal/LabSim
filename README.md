@@ -1,4 +1,4 @@
-# LabSim: Learning Project Based on IsaacLab
+# LabSim: Simulation Project Based on IsaacLab
 
 ## Overview
 
