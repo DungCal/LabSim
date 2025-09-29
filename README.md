@@ -1,119 +1,127 @@
-# LabSim: A Robotic Simulation Environment
+# LabSim: Learning Project Based on IsaacLab
 
 ## Overview
 
-LabSim is a robotic simulation environment built on top of NVIDIA's Isaac Sim platform. It provides a flexible and extensible framework for developing and testing robotic control algorithms, particularly focused on reinforcement learning applications.
+This project is a learning-focused clone of [IsaacLab](https://github.com/isaac-sim/IsaacLab), created to understand and practice robotic simulation and reinforcement learning concepts. It follows the structure and patterns of IsaacLab while providing a space for experimentation and learning.
 
-**Key Features:**
+**Learning Objectives:**
 
-- Built on NVIDIA Isaac Sim for high-fidelity physics simulation
-- Compatible with standard RL frameworks (skrl, RL Games, RSL-RL)
-- Modular environment design
-- Pre-built robot environments (Franka Emika, UR10)
-- Support for both joint space and operational space control
-- `Flexibility` This template is set up to allow your code to be run as an extension in Omniverse.
+- Understanding NVIDIA Isaac Sim's robotics simulation capabilities
+- Learning reinforcement learning implementation with various frameworks (skrl, RL Games, RSL-RL)
+- Practicing robotic environment design and configuration
+- Exploring both joint space and operational space control concepts
 
-**Keywords:** extension, template, isaaclab
+**Acknowledgment:**
+This project is based on [IsaacLab](https://github.com/isaac-sim/IsaacLab) and is created purely for learning purposes. All credit for the original design and architecture goes to the IsaacLab developers.
+## Prerequisites and Installation
 
-## Installation
+1. Install Isaac Lab by following the [installation guide](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/index.html).
+   We recommend using the conda installation method.
 
-- Install Isaac Lab by following the [installation guide](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/index.html).
-  We recommend using the conda installation as it simplifies calling Python scripts from the terminal.
+2. Clone this learning repository:
+   ```bash
+   git clone https://github.com/DungCal/LabSim.git
+   cd LabSim
+   ```
 
-- Clone or copy this project/repository separately from the Isaac Lab installation (i.e. outside the `IsaacLab` directory):
+3. Install the packages in development mode:
+   ```bash
+   # use 'PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
+   python -m pip install -e source/LabSim
+   python -m pip install -e source/LabSim_tasks
+   ```
 
-- Using a python interpreter that has Isaac Lab installed, install the library in editable mode using:
+## Learning Path
 
-    ```bash
-    # use 'PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-    python -m pip install -e source/LabSim
+This repository is structured to help understand various aspects of robotics simulation and RL:
 
-- Verify that the extension is correctly installed by:
+### 1. Basic Environment Verification
 
-    - Listing the available tasks:
-
-        Note: It the task name changes, it may be necessary to update the search pattern `"Template-"`
-        (in the `scripts/list_envs.py` file) so that it can be listed.
-
-        ```bash
-        # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-        python scripts/list_envs.py
-        ```
-
-    - Running a task:
-
-        ```bash
-        # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-        python scripts/<RL_LIBRARY>/train.py --task=<TASK_NAME>
-        ```
-
-    - Running a task with dummy agents:
-
-        These include dummy agents that output zero or random agents. They are useful to ensure that the environments are configured correctly.
-
-        - Zero-action agent
-
-            ```bash
-            # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-            python scripts/zero_agent.py --task=<TASK_NAME>
-            ```
-        - Random-action agent
-
-            ```bash
-            # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-            python scripts/random_agent.py --task=<TASK_NAME>
-            ```
-
-### Set up IDE (Optional)
-
-To setup the IDE, please follow these instructions:
-
-- Run VSCode Tasks, by pressing `Ctrl+Shift+P`, selecting `Tasks: Run Task` and running the `setup_python_env` in the drop down menu.
-  When running this task, you will be prompted to add the absolute path to your Isaac Sim installation.
-
-If everything executes correctly, it should create a file .python.env in the `.vscode` directory.
-The file contains the python paths to all the extensions provided by Isaac Sim and Omniverse.
-This helps in indexing all the python modules for intelligent suggestions while writing code.
-
-### Setup as Omniverse Extension (Optional)
-
-We provide an example UI extension that will load upon enabling your extension defined in `source/LabSim/LabSim/ui_extension_example.py`.
-
-To enable your extension, follow these steps:
-
-1. **Add the search path of this project/repository** to the extension manager:
-    - Navigate to the extension manager using `Window` -> `Extensions`.
-    - Click on the **Hamburger Icon**, then go to `Settings`.
-    - In the `Extension Search Paths`, enter the absolute path to the `source` directory of this project/repository.
-    - If not already present, in the `Extension Search Paths`, enter the path that leads to Isaac Lab's extension directory directory (`IsaacLab/source`)
-    - Click on the **Hamburger Icon**, then click `Refresh`.
-
-2. **Search and enable your extension**:
-    - Find your extension under the `Third Party` category.
-    - Toggle it to enable your extension.
-
-## Code formatting
-
-We have a pre-commit template to automatically format your code.
-To install pre-commit:
-
+First, verify that everything is set up correctly:
 ```bash
-pip install pre-commit
+# List available environments
+python scripts/list_envs.py
+
+# Try a basic test with random actions
+python scripts/random_agent.py --task=LabSim-Reach-Franka-v0
 ```
 
-Then you can run pre-commit with:
+### 2. Understanding Different Control Methods
+
+Available test environments:
+- Joint Position Control: `LabSim-Reach-Franka-v0`
+- Inverse Kinematics (Absolute): `LabSim-Reach-Franka-IK-Abs-v0`
+- Inverse Kinematics (Relative): `LabSim-Reach-Franka-IK-Rel-v0`
+- Operational Space Control: `LabSim-Reach-Franka-OSC-v0`
+
+### 3. Training with Different RL Frameworks
+
+Try training with various RL frameworks:
+```bash
+# Training with skrl
+python scripts/skrl/train.py --task LabSim-Reach-Franka-v0 --algorithm PPO --num_envs 2
+
+# Training with RL Games (if available)
+python scripts/rl_games/train.py --task LabSim-Reach-Franka-v0 --num_envs 2
+```
+
+### 4. Project Structure Study
+
+The repository follows IsaacLab's structure for learning purposes:
+```
+source/
+├── LabSim/            # Core functionality (similar to IsaacLab)
+├── LabSim_tasks/      # Environment implementations
+└── LabSim_assets/     # Robot and scene assets
+```
+
+## Educational Focus Areas
+
+1. **Environment Design**
+   - Understanding Gymnasium environment registration
+   - Learning robot state and action spaces
+   - Implementing reward functions
+
+2. **Control Methods**
+   - Joint space control implementation
+   - Inverse kinematics solutions
+   - Operational space control
+
+3. **RL Integration**
+   - Working with different RL frameworks
+   - Understanding policy training
+   - Hyperparameter tuning
+
+## Development Setup
+
+### IDE Setup (Recommended)
+
+To set up VSCode for development:
+
+1. Press `Ctrl+Shift+P`
+2. Select `Tasks: Run Task`
+3. Run `setup_python_env`
+4. Provide the absolute path to your Isaac Sim installation when prompted
+
+This creates a `.python.env` file in `.vscode` with proper Python paths for intelligent code suggestions.
+
+### Code Formatting
+
+We maintain IsaacLab's code quality standards using pre-commit:
 
 ```bash
+# Install pre-commit
+pip install pre-commit
+
+# Run formatting
 pre-commit run --all-files
 ```
 
 ## Troubleshooting
 
-### Pylance Missing Indexing of Extensions
+### Pylance Missing Indexing
 
-In some VsCode versions, the indexing of part of the extensions is missing.
-In this case, add the path to your extension in `.vscode/settings.json` under the key `"python.analysis.extraPaths"`.
-
+If VSCode's Pylance has indexing issues, add to `.vscode/settings.json`:
 ```json
 {
     "python.analysis.extraPaths": [
@@ -122,17 +130,22 @@ In this case, add the path to your extension in `.vscode/settings.json` under th
 }
 ```
 
-### Pylance Crash
+### Pylance Memory Issues
 
-If you encounter a crash in `pylance`, it is probable that too many files are indexed and you run out of memory.
-A possible solution is to exclude some of omniverse packages that are not used in your project.
-To do so, modify `.vscode/settings.json` and comment out packages under the key `"python.analysis.extraPaths"`
-Some examples of packages that can likely be excluded are:
-
+If Pylance crashes due to memory, exclude unused Omniverse packages in `.vscode/settings.json`:
 ```json
+// Example packages to exclude:
 "<path-to-isaac-sim>/extscache/omni.anim.*"         // Animation packages
 "<path-to-isaac-sim>/extscache/omni.kit.*"          // Kit UI tools
 "<path-to-isaac-sim>/extscache/omni.graph.*"        // Graph UI tools
 "<path-to-isaac-sim>/extscache/omni.services.*"     // Services tools
-...
+```
+
+## Disclaimer
+
+This is a learning project that mimics IsaacLab's structure. It is not intended for production use but rather as a tool for understanding robotics simulation and reinforcement learning concepts.
+
+## License
+
+This project is licensed under the BSD-3-Clause License, following IsaacLab's licensing terms.
 ```
